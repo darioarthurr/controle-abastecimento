@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="Controle corporativo de abastecimento de veículos">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Controle de Abastecimento</title>
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div>
+        <strong>⛽ Controle de Abastecimento</strong>
+        <small id="connectionStatus">Inicializando...</small>
+      </div>
+      <button id="logoutButton" class="secondary hidden">Sair</button>
+    </header>
+
+    <main>
+      <section id="loginView" class="view">
+        <div class="card login-card">
+          <h1>Acesso</h1>
+          <p>Entre com seu usuário para continuar.</p>
+          <form id="loginForm">
+            <label>Usuário
+              <input id="loginUser" autocomplete="username" required>
+            </label>
+            <label>Senha
+              <input id="loginPassword" type="password" autocomplete="current-password" required>
+            </label>
+            <button class="primary" type="submit">Entrar</button>
+          </form>
+          <p id="loginMessage" class="message"></p>
+        </div>
+      </section>
+
+      <section id="dashboardView" class="view hidden">
+        <div class="page-title">
+          <div>
+            <h1 id="welcomeTitle">Dashboard</h1>
+            <p id="roleLabel"></p>
+          </div>
+        </div>
+
+        <div id="kpiGrid" class="kpi-grid"></div>
+
+        <div class="card">
+          <h2>Ações rápidas</h2>
+          <div class="actions">
+            <button id="newFuelButton" class="primary">Novo abastecimento</button>
+            <button id="historyButton" class="secondary">Histórico</button>
+            <button id="vehiclesButton" class="secondary management-only hidden">Veículos</button>
+            <button id="usersButton" class="secondary management-only hidden">Usuários</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Resumo de anomalias</h2>
+          <div id="anomalySummary">Nenhum dado carregado.</div>
+        </div>
+      </section>
+
+      <section id="fuelView" class="view hidden">
+        <div class="page-title">
+          <div>
+            <h1>Novo abastecimento</h1>
+            <p>Os dados serão salvos localmente antes da sincronização.</p>
+          </div>
+        </div>
+
+        <form id="fuelForm" class="card">
+          <label>Veículo / placa
+            <select id="vehicleId" required></select>
+          </label>
+
+          <label>Quilometragem atual
+            <input id="odometerKm" type="number" min="0" step="1" inputmode="numeric" required>
+          </label>
+
+          <label>Tipo de combustível
+            <select id="fuelType" required>
+              <option value="">Selecione</option>
+              <option>Gasolina</option>
+              <option>Etanol</option>
+              <option>Diesel</option>
+              <option>Diesel S10</option>
+              <option>GNV</option>
+              <option>Outro</option>
+            </select>
+          </label>
+
+          <label>Quantidade de litros
+            <input id="liters" type="number" min="0.01" step="0.01" inputmode="decimal" required>
+          </label>
+
+          <label>Valor total (R$)
+            <input id="totalValue" type="number" min="0" step="0.01" inputmode="decimal" required>
+          </label>
+
+          <div class="photo-grid">
+            <div>
+              <label>Foto do odômetro
+                <input id="odometerPhoto" type="file" accept="image/*" capture="environment" required>
+              </label>
+              <img id="odometerPreview" class="photo-preview hidden" alt="Prévia do odômetro">
+            </div>
+            <div>
+              <label>Foto do comprovante
+                <input id="receiptPhoto" type="file" accept="image/*" capture="environment" required>
+              </label>
+              <img id="receiptPreview" class="photo-preview hidden" alt="Prévia do comprovante">
+            </div>
+          </div>
+
+          <div id="draftStatus" class="message"></div>
+
+          <div class="form-actions">
+            <button type="button" id="cancelFuelButton" class="secondary">Cancelar</button>
+            <button type="submit" class="primary">Salvar abastecimento</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="historyView" class="view hidden">
+        <div class="page-title">
+          <div>
+            <h1>Histórico</h1>
+            <p>Registros locais e sincronizados.</p>
+          </div>
+        </div>
+        <div class="card table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th><th>Placa</th><th>KM</th><th>Litros</th><th>Consumo</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="vehiclesView" class="view hidden management-only">
+        <div class="page-title">
+          <div><h1>Veículos</h1><p>Cadastro e consulta da frota.</p></div>
+        </div>
+        <div class="card">
+          <form id="vehicleForm">
+            <label>Placa <input id="vehiclePlate" required maxlength="8"></label>
+            <label>Marca <input id="vehicleBrand" required></label>
+            <label>Modelo <input id="vehicleModel" required></label>
+            <label>Ano <input id="vehicleYear" type="number" min="1900" max="2100" required></label>
+            <label>Combustível padrão <select id="vehicleFuelType" required><option>Gasolina</option><option>Etanol</option><option>Diesel</option><option>Diesel S10</option><option>GNV</option></select></label>
+            <label>Capacidade do tanque (L) <input id="tankCapacity" type="number" min="1" step="0.1" required></label>
+            <button class="primary">Cadastrar veículo</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="usersView" class="view hidden management-only">
+        <div class="page-title">
+          <div><h1>Usuários</h1><p>Cadastro de usuários e perfis.</p></div>
+        </div>
+        <div class="card">
+          <form id="userForm">
+            <label>Nome <input id="newUserName" required></label>
+            <label>Usuário <input id="newUsername" required></label>
+            <label>Senha temporária <input id="newPassword" type="password" required></label>
+            <label>Perfil
+              <select id="newRole" required>
+                <option value="OPERACAO">Operação</option>
+                <option value="GESTAO">Gestão</option>
+                <option value="ADM">ADM</option>
+              </select>
+            </label>
+            <button class="primary">Cadastrar usuário</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
